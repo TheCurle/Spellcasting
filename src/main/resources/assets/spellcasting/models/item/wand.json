@@ -1,0 +1,9 @@
+{
+  "loader": "spellcasting:wand_loader",
+  "base_model": {
+    "parent": "item/generated",
+    "textures": {
+      "layer0": "spellcasting:item/bare_handle"
+    }
+  }
+}
