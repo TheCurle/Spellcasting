@@ -46,7 +46,7 @@ public class WandItem extends Item {
     public Component getName(ItemStack stack) {
         ResourceLocation type = stack.getCapability(Capabilities.WAND_FOCUS_CAPABILITY).orElseThrow(RuntimeException::new).getType();
 
-        Component stackConfigComponent = Component.literal(Wands.WAND_TYPE_REGISTRY.get().getValue(type).getName());
+        Component stackConfigComponent = Component.literal(type.getPath());
         return Component.translatable(this.getDescriptionId(stack)).append(Component.literal(" - ")).append(stackConfigComponent);
     }
 }

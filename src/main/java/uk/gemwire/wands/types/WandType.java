@@ -5,8 +5,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import uk.gemwire.wands.Wands;
 
-import java.util.Locale;
-
 /**
  * A wand type.
  *
@@ -17,10 +15,9 @@ import java.util.Locale;
 public abstract class WandType {
 
     public ResourceLocation toModelLocation() {
-        return new ResourceLocation(Wands.MODID, "item/focus_" + getName().toLowerCase(Locale.ROOT));
+        ResourceLocation typeName = Wands.WAND_TYPE_REGISTRY.get().getKey(this);
+        return new ResourceLocation(typeName.getNamespace(), "item/focus_" + typeName.getPath());
     }
-
-    public abstract String getName();
 
     public abstract void performMagic(Entity caster, ItemStack wand);
 }
