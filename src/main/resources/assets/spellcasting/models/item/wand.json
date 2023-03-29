@@ -3,7 +3,7 @@
   "base_model": {
     "parent": "item/generated",
     "textures": {
-      "layer0": "spellcasting:item/bare_handle"
+      "layer0": "spellcasting:item/wand_oak"
     }
   }
 }
