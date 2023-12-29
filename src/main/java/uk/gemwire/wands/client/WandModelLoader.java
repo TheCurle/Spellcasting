@@ -15,25 +15,26 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.model.BakedModelWrapper;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
+import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
+import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import org.jetbrains.annotations.NotNull;
-import uk.gemwire.wands.Capabilities;
 import uk.gemwire.wands.Wands;
-import uk.gemwire.wands.types.WandType;
+import uk.gemwire.wands.types.Spell;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class WandModelLoader implements IGeometryLoader<WandModelLoader.WandGeometry> {
 
@@ -91,23 +92,28 @@ public class WandModelLoader implements IGeometryLoader<WandModelLoader.WandGeom
         }
 
         @Override
-        public BakedModel applyTransform(ItemTransforms.TransformType transformType, PoseStack poseStack, boolean applyLeftHandTransform) {
+        public BakedModel applyTransform(ItemDisplayContext transformType, PoseStack poseStack, boolean applyLeftHandTransform) {
             getTransforms().getTransform(transformType).apply(applyLeftHandTransform, poseStack);
             return this;
+        }
+
+        @Override
+        public List<BakedModel> getRenderPasses(ItemStack itemStack, boolean fabulous) {
+            return List.of(this);
         }
     }
 
     private static class WandOverrideList extends ItemOverrides {
         private static final RandomSource RANDOM = RandomSource.create();
-        private final Map<WandType, BakedModel> cachedModels = new HashMap<>();
+        private final Map<Spell, BakedModel> cachedModels = new HashMap<>();
 
         @Nullable
         @Override
         public BakedModel resolve(@NotNull BakedModel model, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed)
         {
             //noinspection ConstantConditions
-            Capabilities.FocusData data = stack.getCapability(Capabilities.WAND_FOCUS_CAPABILITY).orElseThrow(RuntimeException::new);
-            WandType type = Wands.WAND_TYPE_REGISTRY.get().getValue(data.getType());
+
+            Spell type = Wands.WAND_TYPE_REGISTRY.get(stack.getData(Wands.WAND_SPELL));
 
             return cachedModels.computeIfAbsent(type, mat -> {
                 List<BakedQuad> quads = new ArrayList<>(model.getQuads(null, null, RANDOM, ModelData.EMPTY, null));
@@ -124,12 +130,12 @@ public class WandModelLoader implements IGeometryLoader<WandModelLoader.WandGeom
     public static class ClientEvents {
         @SubscribeEvent
         public static void onGRegisterLoaders(ModelEvent.RegisterGeometryLoaders event) {
-            event.register("wand_loader", new WandModelLoader());
+            event.register(new ResourceLocation(Wands.MODID, "wand_loader"), new WandModelLoader());
         }
 
         @SubscribeEvent
         public static void onModelRegister(ModelEvent.RegisterAdditional event) {
-            for (WandType type : Wands.WAND_TYPE_REGISTRY.get().getValues()) {
+            for (Spell type : Wands.WAND_TYPE_REGISTRY.stream().collect(Collectors.toSet())) {
                 event.register(type.toModelLocation());
             }
         }

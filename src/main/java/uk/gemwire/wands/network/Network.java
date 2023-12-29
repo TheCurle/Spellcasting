@@ -4,11 +4,11 @@ package uk.gemwire.wands.network;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
-import uk.gemwire.wands.Capabilities;
+import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkRegistry;
+import net.neoforged.neoforge.network.PlayNetworkDirection;
+import net.neoforged.neoforge.network.simple.SimpleChannel;
+import uk.gemwire.wands.Wands;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -29,7 +29,7 @@ public class Network {
 
     // Register valid packets, called from SocketNukes, the main class
     public static void setup() {
-        CHANNEL.messageBuilder(FocusChangedPacket.class, PACKETID++, NetworkDirection.PLAY_TO_SERVER)
+        CHANNEL.messageBuilder(FocusChangedPacket.class, PACKETID++, PlayNetworkDirection.PLAY_TO_SERVER)
                 .encoder(FocusChangedPacket::toBytes)
                 .decoder(FocusChangedPacket::new)
                 .consumerMainThread(FocusChangedPacket::handle)
@@ -38,7 +38,7 @@ public class Network {
 
     // Send an arbitrary packet to the given player, from the server.
     public static void sendToClient(Object packet, ServerPlayer player) {
-        CHANNEL.sendTo(packet, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        CHANNEL.sendTo(packet, player.connection.connection, PlayNetworkDirection.PLAY_TO_CLIENT);
     }
 
     // Send an arbitrary packet to the server, from the client.
@@ -64,12 +64,11 @@ public class Network {
         }
 
         // Consumer - actually perform the intended task.
-        public boolean handle(Supplier<NetworkEvent.Context> ctx) {
-            ctx.get().enqueueWork(() ->
-                    Objects.requireNonNull(ctx.get().getSender())
+        public boolean handle(NetworkEvent.Context ctx) {
+            ctx.enqueueWork(() ->
+                    Objects.requireNonNull(ctx.getSender())
                             .getMainHandItem()
-                            .getCapability(Capabilities.WAND_FOCUS_CAPABILITY)
-                            .ifPresent(cap -> cap.setFocus(config))
+                            .setData(Wands.WAND_SPELL.get(), config)
             );
             return true;
         }

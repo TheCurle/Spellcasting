@@ -4,12 +4,14 @@ package uk.gemwire.wands.client.debug.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import uk.gemwire.wands.Wands;
-import uk.gemwire.wands.types.WandType;
+import uk.gemwire.wands.types.Spell;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -23,13 +25,12 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
     }
 
     public FocusWidget(Screen parent, Font font, int width, int height, int top, int bottom, @Nullable ResourceLocation entry) {
-        super(parent.getMinecraft(), width, height, top, bottom, font.lineHeight + 8);
+        super(parent.getMinecraft(), height, top, bottom, font.lineHeight + 8);
         this.font = font;
 
         this.refreshList(entry);
 
         this.setRenderBackground(false);
-        this.setRenderTopAndBottom(false);
         this.setRenderHeader(false, 0);
     }
 
@@ -41,14 +42,14 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
 
             this.addEntry(entry);
 
-            if (Wands.WAND_TYPE_REGISTRY.get().getKey(entry.getType()).equals(selected))
+            if (Wands.WAND_TYPE_REGISTRY.getKey(entry.getType()).equals(selected))
                 setSelected(entry);
         });
     }
 
     @Override
     public int getScrollbarPosition() {
-        return this.x0 + this.width;
+        return this.getX() + this.width;
     }
 
     @Override
@@ -57,16 +58,16 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
     }
 
     public class FocusWidgetEntry extends ObjectSelectionList.Entry<FocusWidgetEntry> {
-        private final Supplier<WandType> type;
+        private final Spell type;
         private final FocusWidget parent;
 
-        FocusWidgetEntry(Supplier<WandType> type, FocusWidget parent) {
-            this.type = type;
+        FocusWidgetEntry(Holder<Spell> type, FocusWidget parent) {
+            this.type = type.value();
             this.parent = parent;
         }
 
         @Override
-        public void render(PoseStack stack, int idx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
+        public void render(GuiGraphics stack, int idx, int top, int left, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
             boolean isSelected = getSelected() == this;
 
             if (!isSelected) {
@@ -76,13 +77,11 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
                 // j,   k,   j2,   k1,         j1
                 // idx, top, left, entryWidth, entryHeight
 
-                int p3 = y0 + 4 - (int)getScrollAmount();
+                int p3 = getY() + 4 - (int)getScrollAmount();
                 int i1 = p3 + idx * itemHeight + headerHeight;
                 int j1 = itemHeight - 4;
-                int l1 = x0 + width / 2 - entryWidth / 2;
-                int i2 = x0 + width / 2 + entryWidth / 2;
-
-                RenderSystem.disableTexture();
+                int l1 = getX() + width / 2 - entryWidth / 2;
+                int i2 = getX() + width / 2 + entryWidth / 2;
 
                 float f = parent.isFocused() ? 0.25F : 0.125F;
                 //TODO: RenderSystem.color4f(f, f, f, 1.0F);
@@ -100,12 +99,10 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
                 bufferbuilder.vertex((i2 - 1), (i1 - 1), 0.0D).endVertex();
                 bufferbuilder.vertex((l1 + 1), (i1 - 1), 0.0D).endVertex();
                 tessellator.end();
-
-                RenderSystem.enableTexture();
             }
 
-            String name = Wands.WAND_TYPE_REGISTRY.get().getKey(type.get()).toString();
-            parent.font.drawShadow(stack, name, left + 3, top + 2, isSelected ? 0xFFFF55 : 0xFFFFFF);
+            String name = Wands.WAND_TYPE_REGISTRY.getKey(type).toString();
+            stack.drawString(parent.font, name, left + 3, top + 2, isSelected ? 0xFFFF55 : 0xFFFFFF);
         }
 
         @Override
@@ -115,8 +112,8 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
             return false;
         }
 
-        public WandType getType() {
-            return type.get();
+        public Spell getType() {
+            return type;
         }
 
         @Override

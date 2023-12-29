@@ -3,11 +3,11 @@ package uk.gemwire.wands.client.debug.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import uk.gemwire.wands.Capabilities;
 import uk.gemwire.wands.Wands;
 import uk.gemwire.wands.network.Network;
 
@@ -38,28 +38,23 @@ public class FocusConfigScreen extends Screen {
         this.guiTop = (this.height - SCREEN_HEIGHT) / 2;
 
         ItemStack heldItem = minecraft.player.getMainHandItem();
-        ResourceLocation selected = heldItem.getCapability(Capabilities.WAND_FOCUS_CAPABILITY).map(t -> ((Capabilities.FocusData) t).getType()).orElse(new ResourceLocation(Wands.MODID, "null"));
+        ResourceLocation selected = heldItem.getData(Wands.WAND_SPELL);
 
         int width = SCREEN_WIDTH - 10 - 5;
         int height = SCREEN_HEIGHT - 10;
 
         list = new FocusWidget(this, width, height, guiTop + 5, guiTop + height, selected);
-        list.setLeftPos(guiLeft + 5);
+        list.setX(guiLeft + 5);
         addWidget(list);
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
-        // Due to the way the Screen / Gui System is designed we can safely assume that `minecraft` is non null here
-        assert minecraft != null;
+    public void render(GuiGraphics stack, int mouseX, int mouseY, float partialTicks) {
+        super.render(stack, mouseX, mouseY, partialTicks);
 
-        drawCenteredString(stack, this.font, this.title, this.width / 2, 20, 0xFFFFFF);
-
-        RenderSystem.setShaderTexture(0, BACKGROUND);
-        blit(stack, guiLeft, guiTop, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        stack.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
 
         RenderSystem.setShaderTexture(0, Screen.BACKGROUND_LOCATION);
-
         double scale = minecraft.getWindow().getGuiScale();
         int posY   = guiTop + 5;
         int height = SCREEN_HEIGHT - 10;
@@ -67,14 +62,13 @@ public class FocusConfigScreen extends Screen {
         list.render(stack, mouseX, mouseY, partialTicks);
         RenderSystem.disableScissor();
 
-        super.render(stack, mouseX, mouseY, partialTicks);
     }
 
     @Override
     public void onClose() {
         FocusWidget.FocusWidgetEntry entry = list.getSelected();
         if (entry != null)
-            config(Wands.WAND_TYPE_REGISTRY.get().getKey(entry.getType()));
+            config(Wands.WAND_TYPE_REGISTRY.getKey(entry.getType()));
 
         super.onClose();
     }
@@ -86,9 +80,7 @@ public class FocusConfigScreen extends Screen {
         assert minecraft != null;
         assert minecraft.player != null;
 
-        minecraft.player.getMainHandItem().getCapability(Capabilities.WAND_FOCUS_CAPABILITY).ifPresent(cap ->
-                cap.setFocus(registryName)
-        );
+        minecraft.player.getMainHandItem().setData(Wands.WAND_SPELL, registryName);
         Network.sendToServer(new Network.FocusChangedPacket(registryName));
     }
 }
