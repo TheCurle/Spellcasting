@@ -3,6 +3,7 @@ package uk.gemwire.wands.types;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
 import uk.gemwire.wands.Wands;
 
 /**
@@ -26,8 +27,13 @@ public abstract class Spell {
         return new ResourceLocation(typeName.getNamespace(), "item/focus_" + typeName.getPath());
     }
 
+    public ResourceLocation toEntityTextureLocation() {
+        ResourceLocation typeName = Wands.WAND_TYPE_REGISTRY.getKey(this);
+        return new ResourceLocation(typeName.getNamespace(), "textures/entity/spell_projectile/" + typeName.getPath() + ".png");
+    }
+
     // Cast on when the spell lands; projectile hits surface, instant touch, or beam affects entity.
-    public abstract void performMagic(Entity caster, ItemStack wand);
+    public abstract void performMagic(Entity caster, ItemStack wand, HitResult res);
 
     public abstract SpellType getSpell();
 }

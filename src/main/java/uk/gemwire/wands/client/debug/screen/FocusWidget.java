@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import uk.gemwire.wands.Wands;
@@ -101,7 +102,9 @@ public class FocusWidget extends ObjectSelectionList<FocusWidget.FocusWidgetEntr
                 tessellator.end();
             }
 
-            String name = Wands.WAND_TYPE_REGISTRY.getKey(type).toString();
+            ResourceLocation typeName = Wands.WAND_TYPE_REGISTRY.getKey(type);
+            Component name = Component.translatable(Language.getInstance().getOrDefault(
+                    "item.spellcasting.wand"), Component.translatable(Language.getInstance().getOrDefault("spell." + typeName.getNamespace() + "." + typeName.getPath())));
             stack.drawString(parent.font, name, left + 3, top + 2, isSelected ? 0xFFFF55 : 0xFFFFFF);
         }
 

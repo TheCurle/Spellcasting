@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.model.BakedModelWrapper;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -29,6 +30,8 @@ import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import org.jetbrains.annotations.NotNull;
 import uk.gemwire.wands.Wands;
+import uk.gemwire.wands.client.entity.SpellProjectileRenderer;
+import uk.gemwire.wands.entity.SpellProjectileEntity;
 import uk.gemwire.wands.types.Spell;
 
 import javax.annotation.Nullable;
@@ -138,6 +141,11 @@ public class WandModelLoader implements IGeometryLoader<WandModelLoader.WandGeom
             for (Spell type : Wands.WAND_TYPE_REGISTRY.stream().collect(Collectors.toSet())) {
                 event.register(type.toModelLocation());
             }
+        }
+
+        @SubscribeEvent
+        public static void onEntityRendererRegister(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(Wands.SPELL_ENTITY.value(), SpellProjectileRenderer::new);
         }
     }
 }
