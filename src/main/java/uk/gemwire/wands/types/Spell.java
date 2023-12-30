@@ -20,6 +20,19 @@ public abstract class Spell {
         INSTANT,    // Touch Spell; cast directly on a block or an entity.
         PROJECTILE, // Projectile Spell; fire a ball that travels without gravity, spell is applied at the contact point.
         BEAM,       // Beam Spell; effect is applied to every entity in a specified area in front of the player.
+        INSTANTPROJECTILE; // Instant and Projectile; both behaviours are valid.
+
+        public boolean isInstantSpell() {
+            return this == INSTANT || this == INSTANTPROJECTILE;
+        }
+
+        public boolean isProjectileSpell() {
+            return this == PROJECTILE || this == INSTANTPROJECTILE;
+        }
+
+        public boolean isBeamSpell() {
+            return this == BEAM;
+        }
     }
 
     public ResourceLocation toModelLocation() {

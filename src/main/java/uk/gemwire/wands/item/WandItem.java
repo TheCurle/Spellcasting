@@ -37,11 +37,11 @@ public class WandItem extends Item {
         // Projectile spells
         if(!p_41433_.isCrouching()) {
             Spell type = Wands.WAND_TYPE_REGISTRY.get(p_41433_.getItemInHand(p_41434_).getData(Wands.WAND_SPELL));
-            if (type.getSpell() == Spell.SpellType.PROJECTILE) {
+            if (type.getSpell().isProjectileSpell()) {
                 //log.debug("Item in hand is {}, data is {}", p_41433_.getItemInHand(p_41434_), p_41433_.getItemInHand(p_41434_).getData(Wands.WAND_SPELL));
                 SpellProjectileEntity spellEntity = new SpellProjectileEntity(level, Wands.WAND_TYPE_REGISTRY.get(p_41433_.getItemInHand(p_41434_).getData(Wands.WAND_SPELL)));
                 spellEntity.setOwner(p_41433_);
-                log.debug("Entity spell is {}", spellEntity.getEntityData().get(SpellProjectileEntity.spellAccessor));
+                //log.debug("Entity spell is {}", spellEntity.getEntityData().get(SpellProjectileEntity.spellAccessor));
                 spellEntity.setPos(p_41433_.getEyePosition());
                 Vec3 movement = p_41433_.getForward().multiply(1.5, 1.5, 1.5).add(p_41433_.getDeltaMovement());
                 //log.debug("Entity is moving {}, player is moving {}", movement, p_41433_.getDeltaMovement());
@@ -59,7 +59,7 @@ public class WandItem extends Item {
         // Instant spells
         if(!context.getPlayer().isCrouching()) {
             Spell type = Wands.WAND_TYPE_REGISTRY.get(context.getItemInHand().getData(Wands.WAND_SPELL));
-            if (type.getSpell() == Spell.SpellType.INSTANT) {
+            if (type.getSpell().isInstantSpell()) {
                 type.performMagic(context.getPlayer(), context.getItemInHand(), new BlockHitResult(context.getClickLocation(), context.getClickedFace(), context.getClickedPos(), false));
             }
         }
@@ -73,7 +73,7 @@ public class WandItem extends Item {
         // Instant spells
         if(!player.isCrouching()) {
             Spell type = Wands.WAND_TYPE_REGISTRY.get(item.getData(Wands.WAND_SPELL));
-            if (type.getSpell() == Spell.SpellType.INSTANT) {
+            if (type.getSpell().isInstantSpell()) {
                 type.performMagic(player, item, new EntityHitResult(entity));
             }
         }
