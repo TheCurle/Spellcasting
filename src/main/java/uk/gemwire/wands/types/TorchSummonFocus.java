@@ -20,7 +20,20 @@ public class TorchSummonFocus extends Spell {
     @Override
     public void performMagic(Entity caster, ItemStack wand, HitResult res) {
         if (res instanceof EntityHitResult) return;
-        caster.level().setBlock(((BlockHitResult) res).getBlockPos(), getPlacementState((BlockHitResult) res, (Player) caster), Block.UPDATE_ALL);
+        BlockHitResult bhr = (BlockHitResult) res;
+
+        BlockState state = getPlacementState(bhr, (Player) caster);
+        if (state == null) return;
+
+        if (bhr.getDirection() == Direction.DOWN) {
+            if (caster.level().getBlockState(bhr.getBlockPos()) == Blocks.AIR.defaultBlockState())
+                caster.level().setBlock(bhr.getBlockPos(), state, Block.UPDATE_ALL);
+        } else {
+            if (caster.level().getBlockState(bhr.getBlockPos().relative(bhr.getDirection())) == Blocks.AIR.defaultBlockState())
+                caster.level().setBlock(bhr.getBlockPos().relative(bhr.getDirection()), state, Block.UPDATE_ALL);
+        }
+
+
     }
 
     protected BlockState getPlacementState(BlockHitResult res, Player caster) {
@@ -28,7 +41,7 @@ public class TorchSummonFocus extends Spell {
         BlockState blockstate = Blocks.WALL_TORCH.getStateForPlacement(ctx);
         BlockState blockstate1 = null;
         LevelReader levelreader = caster.level();
-        BlockPos blockpos = ctx.getClickedPos().above();
+        BlockPos blockpos = ctx.getClickedPos();
 
         for(Direction direction : ctx.getNearestLookingDirections()) {
             if (direction != res.getDirection().getOpposite()) {
