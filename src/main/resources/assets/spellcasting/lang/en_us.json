@@ -4,6 +4,7 @@
 
   "spell.spellcasting.null": "Bare",
   "spell.spellcasting.fireball": "Fireball",
+  "spell.spellcasting.torch_summon": "Torch Summoning",
 
   "item.spellcasting.wand": "%s Wand"
 }

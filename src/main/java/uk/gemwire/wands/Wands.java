@@ -34,6 +34,7 @@ import uk.gemwire.wands.network.Network;
 import uk.gemwire.wands.types.FireballFocus;
 import uk.gemwire.wands.types.NullFocus;
 import uk.gemwire.wands.types.Spell;
+import uk.gemwire.wands.types.TorchSummonFocus;
 
 import javax.swing.text.html.parser.Entity;
 import java.util.function.Supplier;
@@ -84,7 +85,7 @@ public class Wands {
     public static final Holder<Spell> FOCUS_NULL = WANDS.register("null", NullFocus::new);
 
     public static final Holder<Spell> FOCUS_FIREBALL = WANDS.register("fireball", FireballFocus::new);
-
+    public static final Holder<Spell> FOCUS_TORCHSUMMON = WANDS.register("torch_summon", TorchSummonFocus::new);
 
     public static final DeferredHolder<EntityType<?>, EntityType<SpellProjectileEntity>> SPELL_ENTITY = ENTITIES.register("spell", () ->
             EntityType.Builder.<SpellProjectileEntity>of(SpellProjectileEntity::new, MobCategory.MISC).build("spell")
